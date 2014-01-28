@@ -13,7 +13,7 @@
 
 #define __DEBUG__
 
-//#define __USE_ARR__
+#define __USE_ARR__
 
 #ifdef __DEBUG__
 #define DEBUG printf
@@ -37,18 +37,54 @@ enum {
 
 typedef struct _StateMachine StateMachine;
 
+#ifdef __USE_ARR__
+
+struct _StateMachine{
+	int state;
+	Func pfunc;
+};
+
+#else
 struct _StateMachine{
 	int state;
 	Func pfunc;
 	StateMachine *next;
 };
+#endif
 
-
-
+//function set
 void State_A();
 void State_B();
 void State_C();
 void State_D();
+
+#ifdef __USE_ARR__
+//use array
+StateMachine stateMap[] = {
+		{STATE_A, State_A},
+		{STATE_B, State_B},
+		{STATE_C, State_C},
+		{STATE_D, State_D},
+		{0, NULL},
+};
+
+void ChangeStateUseArr(int state)
+{
+	int i = 0;
+	int isGet = 0;
+
+	for(i = 0; stateMap[i].state != 0; ++i) {
+		if(stateMap[i].state == state) {
+			stateMap[i].pfunc();
+			isGet = 1;
+			break;
+		}
+	}
+
+	if(!isGet)
+		printf("No state function\n");
+}
+#else
 
 //use pointer
 int CeateStateMachineHeader(StateMachine **stateMachine)
@@ -187,32 +223,7 @@ void ChangeStateUseLL(StateMachine *stateMachine, int state)
 
 }
 
-
-//use array
-StateMachine stateMap[] = {
-		{STATE_A, State_A},
-		{STATE_B, State_B},
-		{STATE_C, State_C},
-		{STATE_D, State_D},
-		{0, NULL},
-};
-
-void ChangeStateUseArr(int state)
-{
-	int i = 0;
-	int isGet = 0;
-
-	for(i = 0; stateMap[i].state != 0; ++i) {
-		if(stateMap[i].state == state) {
-			stateMap[i].pfunc();
-			isGet = 1;
-			break;
-		}
-	}
-
-	if(!isGet)
-		printf("No state function\n");
-}
+#endif
 
 int main(void) {
 
